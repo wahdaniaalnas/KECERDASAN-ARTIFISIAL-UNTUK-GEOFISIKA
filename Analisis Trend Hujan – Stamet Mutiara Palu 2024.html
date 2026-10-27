@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Analisis Trend Hujan – Stamet Mutiara Palu 2024</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f4f7fa;--card:#fff;--txt:#14263d;--mut:#5b6b7f;--line:#dde4ec;--acc:#0b5c8a;--acc2:#0e9aa7;--warn:#e0a100;--bad:#d64545;--tr:#9fb3c8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1621;--card:#16222f;--txt:#e6edf5;--mut:#93a4b8;--line:#263546;--acc:#4fb0e6;--acc2:#37c6d2;--tr:#5d7389;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1621;--card:#16222f;--txt:#e6edf5;--mut:#93a4b8;--line:#263546;--acc:#4fb0e6;--acc2:#37c6d2;--tr:#5d7389;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 Inter,"Segoe UI",system-ui,sans-serif}
+.w{max-width:1400px;margin:0 auto;padding:0 20px 40px}
+header{padding:24px 0 16px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-start}
+h1{margin:0;font-size:2rem;color:var(--acc)}
+.sub{color:var(--mut);font-size:.95rem;margin-top:4px}
+.btn{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 14px;font:inherit;cursor:pointer}
+.btn:hover{border-color:var(--acc)}
+.fb{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:20px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.fb label{display:flex;flex-direction:column;font-size:.8rem;color:var(--mut);gap:4px}
+select{font:inherit;color:var(--txt);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 10px;min-width:130px}
+.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:20px}
+.k{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;border-top:4px solid var(--acc)}
+.k .l{font-size:.85rem;color:var(--mut)}.k .v{font-size:2rem;font-weight:700;line-height:1.2;margin:4px 0}.k .v small{font-size:1rem;font-weight:500;color:var(--mut)}
+.k .s{font-size:.82rem;color:var(--mut)}.d{font-weight:600;color:var(--acc2)}
+.g{display:grid;gap:16px;grid-template-columns:repeat(12,1fr);margin-bottom:20px}
+.c{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;grid-column:span 6;min-width:0}
+.c.w8{grid-column:span 8}.c.w4{grid-column:span 4}.c.w12{grid-column:span 12}
+.c h2{margin:0 0 2px;font-size:1.1rem}.c p{margin:0 0 10px;color:var(--mut);font-size:.85rem}
+.cv{position:relative;height:300px}
+h3.sec{margin:28px 0 12px;font-size:1.3rem}
+.ins{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.i{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--acc2);border-radius:10px;padding:14px 16px}
+.i b{display:block;margin-bottom:4px}.i span{color:var(--mut);font-size:.95rem}
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-top:20px}
+summary{cursor:pointer;font-weight:600}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}th:first-child,td:first-child{text-align:left}
+.note{color:var(--mut);font-size:.85rem;margin-top:20px}
+@media (max-width:900px){.c,.c.w8,.c.w4{grid-column:span 12}h1{font-size:1.5rem}}
+@media print{.fb,.btn{display:none}body::before{display:none}}
+</style>
+</head>
+<body>
+<div class="w">
+<header>
+ <div>
+  <h1>Analisis Trend Hujan</h1>
+  <div class="sub">Stasiun Meteorologi Mutiara Palu · BMKG · 0°54′56,94″ LS, 119°54′19,86″ BT</div>
+  <div class="sub">Data harian curah hujan 1 Jan – 31 Des 2024 · Data hingga Desember 2024</div>
+ </div>
+ <div><button class="btn" id="th">Terang / Gelap</button> <button class="btn" onclick="print()">Cetak</button></div>
+</header>
+
+<div class="fb">
+ <label>Dari bulan<select id="fFrom"></select></label>
+ <label>Sampai bulan<select id="fTo"></select></label>
+ <label>Triwulan musim<select id="fSea"><option value="all">Semua</option><option value="DJF">Des–Feb</option><option value="MAM">Mar–Mei</option><option value="JJA">Jun–Agu</option><option value="SON">Sep–Nov</option></select></label>
+ <label>Ambang hari hujan<select id="fThr"><option value="0">≥ 0 mm (sesuai HH Stamet)</option><option value="0.5">≥ 0,5 mm</option><option value="1">≥ 1 mm</option><option value="5">≥ 5 mm</option><option value="20">≥ 20 mm (hujan sedang+)</option></select></label>
+ <button class="btn" id="rs">Reset filter</button>
+</div>
+
+<div class="kp" id="kp"></div>
+
+<div class="g">
+ <div class="c w8"><h2>Trend curah hujan bulanan</h2><p>Batang: total curah hujan (mm) · garis: jumlah hari hujan · putus-putus: garis trend linear</p><div class="cv"><canvas id="c1"></canvas></div></div>
+ <div class="c w4"><h2>Komposisi hari menurut intensitas</h2><p>Klasifikasi harian BMKG</p><div class="cv"><canvas id="c3"></canvas></div></div>
+ <div class="c w12"><h2>Curah hujan harian</h2><p>Warna menunjukkan intensitas: tak terukur/ringan, sedang (20–50 mm), lebat (≥50 mm)</p><div class="cv"><canvas id="c2"></canvas></div></div>
+ <div class="c"><h2>10 hari terbasah</h2><p>Curah hujan harian tertinggi pada periode terpilih</p><div class="cv"><canvas id="c4"></canvas></div></div>
+ <div class="c"><h2>Hari hujan vs total curah hujan</h2><p id="rp">Setiap titik = satu bulan</p><div class="cv"><canvas id="c5"></canvas></div></div>
+ <div class="c w12"><h2>Total curah hujan per triwulan musim</h2><p>Des–Feb, Mar–Mei, Jun–Agu, Sep–Nov (hanya bulan yang lolos filter)</p><div class="cv" style="height:240px"><canvas id="c6"></canvas></div></div>
+</div>
+
+<h3 class="sec">Wawasan utama &amp; rekomendasi</h3>
+<div class="ins" id="ins"></div>
+
+<details><summary>Tabel rincian bulanan</summary>
+ <div class="tw"><table><thead><tr><th>Bulan</th><th>Curah hujan (mm)</th><th>Hari hujan</th><th>Rata-rata mm/HH</th><th>Maks harian (mm)</th><th>Tanggal maks</th></tr></thead><tbody id="tb"></tbody></table></div>
+</details>
+
+<p class="note">Catatan data: sumber berkas Stamet Mutiara Palu 2024 (embedded sebagai teks di dalam skrip, tanpa server). Tanda “-” = tidak ada hujan; “0” = hujan tak terukur (&lt; 0,5 mm) yang tetap dihitung sebagai hari hujan (HH) sesuai berkas. Hanya satu tahun data, sehingga pola di sini bersifat deskriptif dan belum dapat dibaca sebagai normal iklim.</p>
+</div>
+
+<script>
+/* ===== DATA: 12 baris (Jan–Des), 31 token per baris. "-"=tidak hujan, "0"=tak terukur, "x"=tanggal tidak ada ===== */
+const RAW=`0 - 7.7 0 20.7 9.6 - - 0.6 - - - 0 0.2 - 0.2 0.2 0 0 11.5 2 2.7 - 50.5 7.2 - - - - 0.1 -
+- - - - - 3 - 0 - - 0 0.4 2.7 - - 0.7 0.5 - - - - - - 1.6 0 - 0.1 - - x x
+- 0 1.2 4.1 3.2 0 1.8 5.9 - 0 0 - - 2.7 - - - - - - - 0 - - - - 3.5 3.3 8 3.5 0.6
+- 0.8 0.2 - - - 1.1 1.4 1.7 - 2 18.8 - - - 0.2 - 0.5 - - 0 5.4 - 12.4 0.1 0 0.5 3.8 0.6 - x
+- 0.3 5.1 6.5 - 35.8 0.3 - 1.5 - 0.7 10.5 - 13.4 0 1.3 - 1.4 5 0.1 0.1 0.6 1.3 0 45.1 10.5 15 1 0.6 0.4 -
+- 0 0.1 2.5 3.1 0 - 0.4 0.4 0.3 3.8 2.7 0.3 5 1.1 10.4 - 8 2.6 - - - 27.7 8.8 8.3 - 7.5 - 0.7 11.6 x
+0 3.1 16.9 3 0.5 0 3.5 29.6 0.2 1.8 1.9 0 - 22.2 - - 0 - 0 - - 18.2 3.7 0.1 0 - - - - - -
+- 0 0 - 0.7 0 - 11 - 0 - - - 2 - - - 0 1.1 12.5 17 4.9 11.9 32.5 0.5 3.5 26.4 2.5 1 1.5 0
+0.5 - 0.6 0.2 3 0 0.2 - - 1.8 0 0 - - - - - - 0 - - - - 1.8 - 0 3.5 - 0 17.7 x
+1.8 4.2 0 0.2 0 0.2 - 5.3 2.4 0.3 2 0 0.8 6.1 0.3 0.3 0 1 0.2 - - 6.5 - - - - 1.6 - - - -
+- 19.4 - - 0 - - 0 0.2 2.7 7 4.5 - 0.6 0 - 0 0 - 14.4 - - - 5 1.1 0 0 2 0 0.5 x
+4.5 - - 0 - 11.7 0 - - 0 - 0.2 0.6 - 1 0.7 - - 1 2.2 0 0 - 1.3 1.3 - 0 - 0 0 0`;
+const MS=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const MF=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const SEA={DJF:[11,0,1],MAM:[2,3,4],JJA:[5,6,7],SON:[8,9,10]};
+const DM=Array.from({length:12},()=>[]);
+RAW.trim().split('\n').forEach((l,m)=>l.trim().split(' ').forEach((t,i)=>{if(t!=='x')DM[m].push({m,d:i+1,v:t==='-'?null:+t})}));
+
+const $=id=>document.getElementById(id);
+const fmt=(n,d=1)=>n.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d});
+const lab=x=>x.d+' '+MS[x.m];
+const F0={from:0,to:11,season:'all',thr:0};let F={...F0};
+const rainy=x=>x.v!==null&&x.v>=F.thr;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* Statistik per bulan */
+function mstat(m){let mm=0,hh=0,mx=0,md=null;DM[m].forEach(x=>{if(rainy(x)){hh++;mm+=x.v;if(x.v>mx){mx=x.v;md=x}}});return{m,mm,hh,mx,md}}
+function months(){const a=[];for(let m=F.from;m<=F.to;m++)if(F.season==='all'||SEA[F.season].includes(m))a.push(m);return a}
+function agg(ms){const s=ms.map(mstat);return{s,mm:s.reduce((a,b)=>a+b.mm,0),hh:s.reduce((a,b)=>a+b.hh,0),mx:Math.max(0,...s.map(b=>b.mx)),n:ms.reduce((a,m)=>a+DM[m].length,0)}}
+/* Rentetan hari kering / hari hujan terpanjang (hanya antar-hari yang berurutan) */
+function streaks(days){let cd=[0,null],cw=[0,null],a=0,b=0,as,bs,p=-9;
+ days.forEach(x=>{const o=Math.round(new Date(2024,x.m,x.d)/864e5);if(o!==p+1){a=0;b=0}
+  if(rainy(x)){b++;if(b===1)bs=x;if(b>cw[0])cw=[b,bs];a=0}else{a++;if(a===1)as=x;if(a>cd[0])cd=[a,as];b=0}p=o});return{cd,cw}}
+const pearson=(x,y)=>{const n=x.length;if(n<3)return null;const mx=x.reduce((a,b)=>a+b)/n,my=y.reduce((a,b)=>a+b)/n;let sxy=0,sx=0,sy=0;
+ for(let i=0;i<n;i++){sxy+=(x[i]-mx)*(y[i]-my);sx+=(x[i]-mx)**2;sy+=(y[i]-my)**2}return sx&&sy?sxy/Math.sqrt(sx*sy):null};
+function reg(y){const n=y.length;if(n<3)return null;const xs=y.map((_,i)=>i),mx=(n-1)/2,my=y.reduce((a,b)=>a+b)/n;let a=0,b=0;
+ xs.forEach(i=>{a+=(i-mx)*(y[i]-my);b+=(i-mx)**2});const k=a/b;return{k,line:xs.map(i=>my+k*(i-mx))}}
+const dl=(c,p)=>p?`<span class="d">${c>=p?'▲':'▼'} ${fmt(Math.abs((c-p)/p*100))}% vs periode sebelumnya</span>`:'<span class="s">tanpa pembanding</span>';
+
+/* Grafik */
+const CH={};
+function mk(id,cfg){if(CH[id])CH[id].destroy();cfg.options=Object.assign({responsive:true,maintainAspectRatio:false,animation:{duration:250}},cfg.options);CH[id]=new Chart($(id),cfg)}
+const ax=(t,extra={})=>Object.assign({title:{display:!!t,text:t},grid:{color:css('--line')}},extra);
+const tipMm=c=>' '+c.dataset.label+': '+fmt(c.parsed.y??c.parsed.x)+' mm';
+
+function render(){
+ Chart.defaults.color=css('--mut');Chart.defaults.font.family='Inter,"Segoe UI",system-ui,sans-serif';Chart.defaults.font.size=13;
+ const ms=months(),A=agg(ms),days=ms.flatMap(m=>DM[m]);
+ /* periode sebelumnya dengan panjang sama (hanya bila tanpa filter musim) */
+ let P=null;if(F.season==='all'){const L=F.to-F.from+1,pf=F.from-L;if(pf>=0){const pm=[];for(let m=pf;m<F.from;m++)pm.push(m);const t=agg(pm);P={mm:t.mm,hh:t.hh,avg:t.hh?t.mm/t.hh:0,mx:t.mx}}}
+ const avg=A.hh?A.mm/A.hh:0,top=A.s.reduce((a,b)=>b.mm>a.mm?b:a,{mm:-1}),st=streaks(days);
+ let mxd=null;days.forEach(x=>{if(rainy(x)&&(!mxd||x.v>mxd.v))mxd=x});
+ const K=[
+  ['Total curah hujan',fmt(A.mm),'mm',`${ms.length} bulan terpilih`,dl(A.mm,P&&P.mm)],
+  ['Hari hujan (HH)',A.hh,'hari',`${fmt(A.n?A.hh/A.n*100:0)}% dari ${A.n} hari`,dl(A.hh,P&&P.hh)],
+  ['Rata-rata per hari hujan',fmt(avg),'mm/HH','intensitas rata-rata',dl(avg,P&&P.avg)],
+  ['Curah hujan harian maks',fmt(A.mx),'mm',mxd?lab(mxd):'–',dl(A.mx,P&&P.mx)],
+  ['Bulan terbasah',top.mm>=0?MF[top.m]:'–','',top.mm>=0?fmt(top.mm)+' mm · '+top.hh+' HH':'',''],
+  ['Hari tanpa hujan beruntun',st.cd[0],'hari',st.cd[1]?'mulai '+lab(st.cd[1]):'–',''],
+  ['Hari hujan beruntun',st.cw[0],'hari',st.cw[1]?'mulai '+lab(st.cw[1]):'–','']];
+ $('kp').innerHTML=K.map(k=>`<div class="k"><div class="l">${k[0]}</div><div class="v">${k[1]} <small>${k[2]}</small></div><div class="s">${k[3]}</div><div>${k[4]}</div></div>`).join('');
+ if(!ms.length){return}
+
+ const lb=A.s.map(b=>MS[b.m]),R=reg(A.s.map(b=>b.mm)),c1=css('--acc'),c2=css('--acc2');
+ /* 1. Combo bulanan */
+ mk('c1',{data:{labels:lb,datasets:[
+  {type:'bar',label:'Curah hujan (mm)',data:A.s.map(b=>+b.mm.toFixed(1)),backgroundColor:c1,borderRadius:4,yAxisID:'y',order:3},
+  {type:'line',label:'Hari hujan',data:A.s.map(b=>b.hh),borderColor:c2,backgroundColor:c2,tension:.25,yAxisID:'y1',order:1},
+  ...(R?[{type:'line',label:'Trend linear (mm)',data:R.line.map(v=>+v.toFixed(1)),borderColor:css('--warn'),borderDash:[6,5],pointRadius:0,yAxisID:'y',order:2}]:[])]},
+  options:{scales:{x:ax(),y:ax('Curah hujan (mm)',{beginAtZero:true}),y1:{position:'right',beginAtZero:true,title:{display:true,text:'Hari hujan'},grid:{drawOnChartArea:false}}},
+  plugins:{tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+fmt(c.parsed.y,c.dataset.yAxisID==='y1'?0:1)}}}}});
+ /* 2. Harian */
+ const dr=days.map(x=>rainy(x)?x.v:0);
+ mk('c2',{type:'bar',data:{labels:days.map(lab),datasets:[{label:'Curah hujan harian',data:dr,backgroundColor:dr.map(v=>v>=50?css('--bad'):v>=20?css('--warn'):v>=0.5?c2:css('--tr')),barPercentage:1,categoryPercentage:.9}]},
+  options:{scales:{x:ax('',{ticks:{maxTicksLimit:14,autoSkip:true}}),y:ax('mm/hari',{beginAtZero:true})},plugins:{legend:{display:false},tooltip:{callbacks:{label:tipMm}}}}});
+ /* 3. Donut intensitas */
+ const cat=[0,0,0,0,0];days.forEach(x=>{const v=x.v;if(!rainy(x))cat[0]++;else if(v<.5)cat[1]++;else if(v<20)cat[2]++;else if(v<50)cat[3]++;else cat[4]++});
+ mk('c3',{type:'doughnut',data:{labels:['Tanpa hujan / < ambang','Tak terukur (0)','Ringan (0,5–<20)','Sedang (20–<50)','Lebat (≥50)'],datasets:[{data:cat,backgroundColor:[css('--line'),css('--tr'),c2,css('--warn'),css('--bad')],borderColor:css('--card')}]},
+  options:{cutout:'58%',plugins:{legend:{position:'bottom',labels:{boxWidth:12}},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed} hari (${fmt(c.parsed/days.length*100)}%)`}}}}});
+ /* 4. Top 10 hari */
+ const t10=days.filter(rainy).sort((a,b)=>b.v-a.v).slice(0,10);
+ mk('c4',{type:'bar',data:{labels:t10.map(lab),datasets:[{label:'Curah hujan harian',data:t10.map(x=>x.v),backgroundColor:t10.map(x=>x.v>=50?css('--bad'):x.v>=20?css('--warn'):c1),borderRadius:4}]},
+  options:{indexAxis:'y',scales:{x:ax('mm/hari',{beginAtZero:true}),y:ax()},plugins:{legend:{display:false},tooltip:{callbacks:{label:tipMm}}}}});
+ /* 5. Scatter HH vs mm */
+ const r=pearson(A.s.map(b=>b.hh),A.s.map(b=>b.mm));
+ $('rp').textContent='Setiap titik = satu bulan'+(r!==null?` · korelasi r = ${fmt(r,2)}`:' · butuh ≥3 bulan untuk korelasi');
+ mk('c5',{type:'scatter',data:{datasets:[{label:'Bulan',data:A.s.map(b=>({x:b.hh,y:+b.mm.toFixed(1),m:b.m})),backgroundColor:c1,pointRadius:7,pointHoverRadius:9}]},
+  options:{scales:{x:ax('Hari hujan',{beginAtZero:true}),y:ax('Curah hujan (mm)',{beginAtZero:true})},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${MF[c.raw.m]}: ${c.raw.x} HH, ${fmt(c.raw.y)} mm`}}}}});
+ /* 6. Triwulan musim */
+ const sk=Object.keys(SEA),sn={DJF:'Des–Feb',MAM:'Mar–Mei',JJA:'Jun–Agu',SON:'Sep–Nov'};
+ const sv=sk.map(k=>A.s.filter(b=>SEA[k].includes(b.m)).reduce((a,b)=>a+b.mm,0));
+ mk('c6',{type:'bar',data:{labels:sk.map(k=>sn[k]),datasets:[{label:'Curah hujan (mm)',data:sv.map(v=>+v.toFixed(1)),backgroundColor:[c1,c2,css('--warn'),css('--tr')],borderRadius:4}]},
+  options:{scales:{x:ax(),y:ax('mm',{beginAtZero:true})},plugins:{legend:{display:false},tooltip:{callbacks:{label:tipMm}}}}});
+
+ /* Wawasan dinamis: berupa rekomendasi / pertanyaan bagi pimpinan */
+ const I=[],wet=A.s.filter(b=>b.hh>0),dry=A.s.reduce((a,b)=>b.mm<a.mm?b:a,A.s[0]);
+ if(A.mm>0){
+  I.push(['Puncak hujan: '+MF[top.m],`${fmt(top.mm)} mm atau ${fmt(top.mm/A.mm*100)}% dari total periode${dry.m!==top.m?`, sekitar ${dry.mm>0?fmt(top.mm/dry.mm,1)+'×':'jauh di atas'} bulan terkering (${MF[dry.m]}, ${fmt(dry.mm)} mm)`:''}. Apakah kesiapan drainase, tanggap bencana, dan jadwal pekerjaan lapangan sudah disesuaikan dengan bulan puncak ini?`]);
+  const all=days.filter(rainy).sort((a,b)=>b.v-a.v),t5=all.slice(0,5).reduce((a,b)=>a+b.v,0);
+  if(mxd)I.push(['Hujan terkonsentrasi pada hari ekstrem',`Hari tertinggi ${lab(mxd)} mencapai ${fmt(mxd.v)} mm (${mxd.v>=50?'kategori lebat':mxd.v>=20?'kategori sedang':'kategori ringan'}), dan 5 hari terbasah menyumbang ${fmt(t5/A.mm*100)}% total. Pertimbangkan peringatan dini berbasis kejadian ekstrem, bukan hanya rata-rata bulanan.`]);
+  if(r!==null)I.push(['Total ditentukan frekuensi atau intensitas?',`Korelasi hari hujan terhadap total curah hujan r = ${fmt(r,2)}. ${r>=.7?'Bulan dengan hari hujan banyak cenderung basah; pantau frekuensi hujan sebagai indikator awal.':'Hubungan lemah–sedang: total bulanan banyak dipengaruhi segelintir hujan deras, sehingga jumlah hari hujan saja menyesatkan.'}`]);
+  if(R)I.push(['Arah trend dalam periode',`Garis trend ${R.k>=0?'naik':'turun'} sekitar ${fmt(Math.abs(R.k))} mm per bulan. Ini hanya gambaran 2024; apakah data tahun-tahun sebelumnya perlu ditambahkan sebelum dipakai untuk keputusan musiman?`]);
+  const sm=sv.map((v,i)=>({k:sk[i],v})).filter(o=>SEA[o.k].some(m=>A.s.some(b=>b.m===m)));
+  if(sm.length>1){const hi=sm.reduce((a,b)=>b.v>a.v?b:a),lo=sm.reduce((a,b)=>b.v<a.v?b:a);I.push(['Pola musiman',`Triwulan ${sn[hi.k]} paling basah (${fmt(hi.v)} mm) dan ${sn[lo.k]} paling kering (${fmt(lo.v)} mm). Kegiatan sensitif air (irigasi, tanam, konstruksi) sebaiknya dijadwalkan mengikuti kontras ini.`])}
+  if(st.cd[0]>0)I.push(['Rentetan hari kering',`Rentetan tanpa hujan terpanjang ${st.cd[0]} hari mulai ${lab(st.cd[1])}. Adakah risiko pasokan air atau kekeringan lahan pada rentang tersebut yang perlu diantisipasi?`]);
+ }else I.push(['Tidak ada data hujan','Tidak ada hari hujan yang memenuhi filter saat ini. Longgarkan ambang atau rentang bulan.']);
+ $('ins').innerHTML=I.map(i=>`<div class="i"><b>${i[0]}</b><span>${i[1]}</span></div>`).join('');
+ $('tb').innerHTML=A.s.map(b=>`<tr><td>${MF[b.m]}</td><td>${fmt(b.mm)}</td><td>${b.hh}</td><td>${b.hh?fmt(b.mm/b.hh):'–'}</td><td>${fmt(b.mx)}</td><td>${b.md?lab(b.md):'–'}</td></tr>`).join('')+`<tr><td><b>Total</b></td><td><b>${fmt(A.mm)}</b></td><td><b>${A.hh}</b></td><td><b>${A.hh?fmt(avg):'–'}</b></td><td><b>${fmt(A.mx)}</b></td><td></td></tr>`;
+}
+
+/* Filter */
+const opts=MF.map((n,i)=>`<option value="${i}">${n}</option>`).join('');
+$('fFrom').innerHTML=opts;$('fTo').innerHTML=opts;
+function sync(){$('fFrom').value=F.from;$('fTo').value=F.to;$('fSea').value=F.season;$('fThr').value=F.thr}
+$('fFrom').onchange=e=>{F.from=+e.target.value;if(F.to<F.from)F.to=F.from;sync();render()};
+$('fTo').onchange=e=>{F.to=+e.target.value;if(F.from>F.to)F.from=F.to;sync();render()};
+$('fSea').onchange=e=>{F.season=e.target.value;render()};
+$('fThr').onchange=e=>{F.thr=+e.target.value;render()};
+$('rs').onclick=()=>{F={...F0};sync();render()};
+$('th').onclick=()=>{const d=document.documentElement,dark=css('--bg')==='#0e1621';d.dataset.theme=dark?'light':'dark';render()};
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change',render);
+sync();render();
+</script>
+</body>
+</html>
